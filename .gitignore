@@ -1,1 +1,4 @@
 .env
+.chroma
+.gitattributes
+__pycache__
