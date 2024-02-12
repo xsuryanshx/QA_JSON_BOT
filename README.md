@@ -1,14 +1,5 @@
-# QARetrieval Model 
-AI Question Answering model that answers the important questions related to PAN card. 
-
-![image](https://github.com/xsuryanshx/QARetrievalModel/assets/51471876/4724098b-1d56-4055-a52c-9bbebf91c857)
-
-Deployed App (Try it out!) - https://pan-card-information.streamlit.app/
-## Features
-Incorporated multiple features in this update including :
-*  Multilinguality -  for asking questions in different languages
-*  Speech - Use speech to ask questions and return answer in speech.
-*  Scores -  Generated Rouge Score.
+# QA-JSON BOT
+AI Question Answering model that answers the important questions related to input files.
    
 ## Running Locally
 Follow these steps to set up and run the service locally :
@@ -20,11 +11,11 @@ Follow these steps to set up and run the service locally :
 ### Installation
 Clone the repository :
 
-`https://github.com/xsuryanshx/QARetrievalModel.git`
+`https://github.com/xsuryanshx/qa_json_bot.git`
 
 Navigate to the project directory :
 
-`cd QARetrievalModel`
+`cd QA_JSON_BOT
 
 
 Create a virtual environment :
