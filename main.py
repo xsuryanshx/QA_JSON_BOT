@@ -2,6 +2,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.document_loaders import JSONLoader
 import json
+import uvicorn
 import os
 from datetime import datetime
 from rag_qa_model import RAG_QA_Model
@@ -18,7 +19,6 @@ app = FastAPI()
 OPEN_API_KEY = os.getenv("OPENAI_API_KEY")
 
 model = RAG_QA_Model()
-model.set_api_key(api_key= OPEN_API_KEY)
 
 def loader_for_context(path_to_file):
     print(path_to_file)
@@ -35,22 +35,17 @@ def loader_for_context(path_to_file):
 
     return loader
 
-
-def read_questions_from_json(file_path):
+def questions_from_json(file_path):
     with open(file_path, "rb") as f:
         questions = json.load(f)
     list_questions = [item["question"] for item in questions]
     return list_questions
 
-# To use as a health check endpoint
-# @app.get("/")
-# def read_root():
-#     return {"Hello": "World"}
-
 # Define endpoint to handle questions and documents
 @app.post("/")
 async def answer_questions(questions_file: UploadFile = File(...), context_file: UploadFile = File(...)):
-    try:
+    if model.is_valid_api_key(api_key=OPEN_API_KEY):
+        model.set_api_key(api_key= OPEN_API_KEY)
         # Save the uploaded file
         file_path = f"{questions_file.filename}"
         with open(file_path, "wb") as f:
@@ -58,7 +53,7 @@ async def answer_questions(questions_file: UploadFile = File(...), context_file:
 
         # Determine file type and read questions
         if questions_file.filename.endswith('.json'):
-            questions = read_questions_from_json(file_path)
+            questions = questions_from_json(file_path)
         else:
             return {"error": "Unsupported file format, input file should be in json format"}
 
@@ -77,12 +72,13 @@ async def answer_questions(questions_file: UploadFile = File(...), context_file:
         else:
             return {"error": "Input file should be in json or pdf format"}
 
-        model.load_document(loader, model_type="Multilingual")
+        # Loads the input context data and creates chunks.
+        model.load_document(loader)
 
         # Iterate through questions and generate answers
         answers = []
         for index, question in enumerate(questions):
-            answer = model.answer_questions(question, number_of_documents_to_review=3, temperature=0)
+            answer = model.answer_questions(question, number_of_documents_to_review=5, temperature=0)
             answer = {
                 "question": question,
                 "answer": answer.replace("\n", ""),
@@ -90,13 +86,12 @@ async def answer_questions(questions_file: UploadFile = File(...), context_file:
             answers.append(answer)
 
         with open("answers.json", "w") as final:
-            json.dump(answers, final)
+            json.dump(answers, final, indent=4)
 
         return answers
-    except:
-        raise HTTPException(status_code=500, detail=str(e))
+    else:
+        raise Exception("Please use correct OpenAI key.")
 
 # Run the FastAPI app
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=600)

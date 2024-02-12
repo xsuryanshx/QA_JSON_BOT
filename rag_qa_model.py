@@ -1,28 +1,16 @@
-from typing import Tuple, List
+from typing import Tuple
 import openai
 import pandas as pd
-import json
 import time
-from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
-import os
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma, FAISS
-from langchain.embeddings.cohere import CohereEmbeddings
-from langchain.llms import Cohere
-from langchain.vectorstores import Qdrant
-from langchain.chat_models import ChatOpenAI
+from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
-from langchain.document_loaders import TextLoader, JSONLoader
-from langchain.text_splitter import CharacterTextSplitter
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.callbacks import get_openai_callback
-from tqdm import tqdm
-from rouge_score import rouge_scorer
-import re
 
 
 class RAG_QA_Model:
@@ -36,36 +24,13 @@ class RAG_QA_Model:
 
     def load_document(
         self,
-        # selected_document: str,
-        loader,
-        model_type: str,
+        loader
     ):
         """load documents
 
         Args:
-            selected_document (str): name of selected document
-            model_type (str): model type that defines the vector storage type
-            openai_key (str, optional): Defaults to os.getenv("OPENAI_API_KEY")
+            loader : PDF/JSON Loader from input context file.
         """
-        # data_path = Path("./files").resolve()
-        # with open(Path("./document_config.json").resolve(), "r") as f:
-        #     document_config = json.load(f)
-        
-        # if selected_document in document_config:
-        #     file_prefix = document_config[selected_document]["document"]
-        #     path_to_file = Path(data_path, file_prefix).as_posix()
-        #     print(path_to_file)
-
-        # # Load the text document
-        # if selected_document == "JSON INPUT":
-        #     loader = JSONLoader(file_path = path_to_file,
-        #             jq_schema='.',
-        #             text_content=False)
-        # elif selected_document == "PDF INPUT":
-        #     loader = PyPDFLoader(path_to_file)
-        # else:
-        #     raise Exception("Please select valid input file format eg. pdf or json")
-
         self.__documents = loader.load()
 
         # split the documents into chunks
@@ -76,24 +41,8 @@ class RAG_QA_Model:
         self.__documents = text_splitter.split_documents(self.__documents)
 
         # Use the Open AI Embeddings
-
-        if model_type == "Standard":
-            embeddings = OpenAIEmbeddings()
-            self.__db = Chroma.from_documents(self.__documents, embeddings)
-        elif model_type == "Multilingual":
-            embeddings = CohereEmbeddings(
-                model="multilingual-22-12",
-                cohere_api_key=os.getenv("COHERE_API_KEY"),
-            )
-            self.__db = Qdrant.from_documents(
-                self.__documents,
-                embeddings,
-                location=":memory:",
-                collection_name="my_documents",
-                distance_func="Dot",
-            )
-        else:
-            raise ValueError("Invalid vector storage type.")
+        embeddings = OpenAIEmbeddings()
+        self.__db = Chroma.from_documents(self.__documents, embeddings)
 
     def is_valid_api_key(self, api_key: str) -> bool:
         """
@@ -181,30 +130,25 @@ class RAG_QA_Model:
     def prompt_template(self):
         """Prompt for generating answer."""
         template_format = """
-        You are a helpful AI assistant. Use the following pieces of context to answer the question at the end.
-        Give answer intelligently like a professional, in bullet points.
+        Use the following pieces of context to answer the question at the end.
         If you don't know the answer, just say that you don't know. Don't try to make up an answer.
+        ALways remember to give only the answer of questions who's data you can find in the "Context:". 
+        If you can't find the relevant information in "Context:" please return "Sorry, I don't know about it"
 
         Examples of some expected answers - 
 
         Examples #1
-        Summary: Apples are red in colour.
-
-        Question: who is the prime minister of india?
-        Answer: Sorry, I don't know how to answer this question.
-
-        Examples #2
-        Summary: The witness took the stand as directed. It was night and the witness forgot his glasses. \
+        Context: The witness took the stand as directed. It was night and the witness forgot his glasses. \
         he was not sure if it was a sports car or an suv. The rest of the report shows everything was okay.
 
         Question: what type was the car?
         Answer: He was not sure if it was a sports car or an suv.
 
-        Examples #3
-        Summary: Pears are either red or orange
+        Examples #2
+        Context: Pears are either red or orange
 
-        Question: what color are apples?
-        Answer: Sorry, I don't know how to answer this question.
+        Question: What are your network security protocols?
+        Answer: Sorry, I don't know about it.
 
         Now your turn, Begin!
 
@@ -217,12 +161,4 @@ class RAG_QA_Model:
             input_variables=["context", "question"],
         )
         return prompt
-
-
-if __name__ == '__main__':
-    model = RAG_QA_Model()
-    model.set_api_key(api_key= os.getenv("OPENAI_API_KEY"))
-    model.load_document(selected_document="PDF INPUT", model_type="Standard")
-    print(model.answer_questions(question="Which cloud providers do you rely on?", number_of_documents_to_review=3, temperature=0))
-
 

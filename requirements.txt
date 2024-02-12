@@ -1,15 +1,10 @@
 jq
 pypdf
+fastapi
 langchain-openai
-cohere
-qdrant-client
-streamlit
 openai
 tiktoken
 pandas
 python-dotenv
 langchain
-transformers
 chromadb==0.3.29
-openpyxl
-rouge_score
