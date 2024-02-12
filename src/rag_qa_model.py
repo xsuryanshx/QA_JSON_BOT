@@ -115,16 +115,6 @@ class RAG_QA_Model:
         total_request_time = round(end_time - start_time)
 
         return result["result"]
-        
-
-    @property
-    def total_chunks(self):
-        """number of chunks of text made after splitting
-
-        Returns:
-            int: number of chunks
-        """
-        return len(self.__documents)
 
     @property
     def prompt_template(self):
