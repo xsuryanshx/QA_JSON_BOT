@@ -1,0 +1,22 @@
+[
+    {
+        "question": "Do you have formally defined criteria for notifying a client during an incident that might impact the security of their data or systems? What are your SLAs for notification?",
+        "answer": "Yes, we have a dedicated incident response plan in place that is tested, reviewed and updated at least once a year."
+    },
+    {
+        "question": "Is personal information transmitted, processed, stored, or disclosed to or retained by third parties? If yes, describe.",
+        "answer": "Yes, personal information is transmitted, processed, stored, or disclosed to or retained by third parties. The Company has a dedicated incident response plan in place that is tested, reviewed and updated at least once a year."
+    },
+    {
+        "question": "Which cloud providers do you rely on?",
+        "answer": "Sorry, I don't know about it."
+    },
+    {
+        "question": "Please specify the primary data center location/region of the underlying cloud infrastructure used to host the service(s) as well as the backup location(s).",
+        "answer": "Company does not share this type of detailed and/or sensitive evidence for routine vendor due diligence assessments."
+    },
+    {
+        "question": "Which of the following, if any, are performed as part of your monitoring process for the service: Application Performance Monitoring (APM) End User Monitoring (EUM) Digital Experience Monitoring (DEM)",
+        "answer": "Sorry, I don't know about it."
+    }
+]
