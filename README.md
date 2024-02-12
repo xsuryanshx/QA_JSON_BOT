@@ -15,14 +15,15 @@ Clone the repository :
 
 Navigate to the project directory :
 
-`cd QA_JSON_BOT
+`cd QA_JSON_BOT`
 
 ### API Reference
 
-Open your web browser and run the link to test the API:
+Open your web browser and run the link to test the API, additionally you can use Postman for this as well.
+
 `http://0.0.0.0:600/docs`
 
-Create a virtual environment :
+#### Create a virtual environment :
 ```bash
 python -m venv .venv
 .\.venv\Scripts\activate
