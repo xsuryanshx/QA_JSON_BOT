@@ -22,10 +22,7 @@ class RAG_QA_Model:
         self.__db = None
         self.__documents = []
 
-    def load_document(
-        self,
-        loader
-    ):
+    def load_document(self, loader):
         """load documents
 
         Args:
@@ -35,8 +32,7 @@ class RAG_QA_Model:
 
         # split the documents into chunks
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500, 
-            chunk_overlap=100
+            chunk_size=500, chunk_overlap=100
         )
         self.__documents = text_splitter.split_documents(self.__documents)
 
@@ -151,4 +147,3 @@ class RAG_QA_Model:
             input_variables=["context", "question"],
         )
         return prompt
-
